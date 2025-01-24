@@ -5,8 +5,8 @@ from k_search import Ksearch
 
 
 if __name__ == '__main__':
-    samples = [100,50,200,100]
-    X, y = make_blobs(n_samples=samples)
+    samples = [100,150,200,250]
+    X, y = make_blobs(n_samples=samples, cluster_std=1.5)
     kmeans = Kmeans(n_clusters=len(samples))
 
     # kmeans.fit(X)
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # kmeans.plot_silhouettes()
     # kmeans.plot_learning()
 
-    kmeans.shoot_learning_video(X, n_iter = 3)
+    kmeans.shoot_learning_video(X, n_iter = 10)
 
     # k_search = Ksearch(X)
     # k_search.find_best_k()

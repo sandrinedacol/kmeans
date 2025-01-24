@@ -207,16 +207,19 @@ class Kmeans():
     def shoot_learning_video(self, data, dist=2, n_iter=5):
         self.data = data
         self.dist = dist
+        plt.rcParams['figure.figsize'] = [8, 8]
         fig, ax = plt.subplots()
+        ax.set_axis_off()
         ims = []
-
-        for _ in range(n_iter):
+        
+        for i in range(n_iter):
             # initialization
             self.centroids = [self.choose_random_point() for _ in range(self.n_clusters)]
             self.labels = np.array([0] * len(self.data))
-            im = ax.scatter(self.data[:,0], self.data[:,1], c='grey', animated=True)
+            im1 = ax.scatter(self.data[:,0], self.data[:,1], c='grey', alpha=0.3, s=100, edgecolors='none', animated=True)
+            im2 = ax.annotate(f'random\ninitialization\n#{i+1}', (0.5, 0.5), fontsize=18, ha='center', va='center')
             for _ in range(5):
-                ims.append([im])
+                ims.append([im1, im2])
             self.centroids = [self.choose_random_point() for _ in range(self.n_clusters)]
             ims, ax = self.take_data_photo(ims, ax)
             # learning
@@ -232,15 +235,15 @@ class Kmeans():
                 ims, ax = self.take_data_photo(ims, ax)
             for _ in range(5):
                 ims, ax = self.take_data_photo(ims, ax)
-        ani = animation.ArtistAnimation(fig, ims, interval=200, blit=True, repeat_delay=1000)
-        writergif = animation.PillowWriter(fps=200)
+        ani = animation.ArtistAnimation(fig, ims, interval=100, blit=True, repeat_delay=1000)
+        writergif = animation.PillowWriter()
         ani.save('learning_video.gif',writer=writergif)
         plt.show()
 
     def take_data_photo(self, ims, ax):
         centroids = np.array(self.centroids)
-        im1 = ax.scatter(self.data[:,0], self.data[:,1], c=[self.plot_colors[label] for label in self.labels], animated=True)
-        im2 = ax.scatter(centroids[:,0], centroids[:,1], marker = "*", c=[self.plot_colors[label] for label in range(self.n_clusters)], s=200, edgecolors='black', animated=True)
+        im1 = ax.scatter(self.data[:,0], self.data[:,1], c=[self.plot_colors[label] for label in self.labels], alpha=0.3, s=100, edgecolors='none', animated=True)
+        im2 = ax.scatter(centroids[:,0], centroids[:,1], marker = "*", c=[self.plot_colors[label] for label in range(self.n_clusters)], s=500, edgecolors='black', animated=True)
         ims.append([im1, im2])
         return ims, ax
     
