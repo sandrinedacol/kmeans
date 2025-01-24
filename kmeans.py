@@ -204,41 +204,43 @@ class Kmeans():
             point.append(float(random.uniform(space_min, space_max)))
         return point
 
-    def shoot_learning_video(self, data, dist=2):
+    def shoot_learning_video(self, data, dist=2, n_iter=5):
         self.data = data
         self.dist = dist
         fig, ax = plt.subplots()
         ims = []
-        # initialization
-        self.centroids = [self.choose_random_point() for _ in range(self.n_clusters)]
-        self.labels = np.array([0] * len(self.data))
-        im = ax.scatter(self.data[:,0], self.data[:,1], c=[self.plot_colors[label] for label in self.labels], animated=True)
-        ims.append([im])
-        self.centroids = [self.choose_random_point() for _ in range(self.n_clusters)]
-        ims, ax = self.take_photo(ims, ax)
-        # learning
-        self.__stop = False
-        self.sil_scores_during_learning = []
-        self.n_iter = 0
-        while not self.__stop:
-            self.__stop = True
-            self.n_iter += 1
-            self.reassign_points_to_cluster()
-            ims, ax = self.take_photo(ims, ax)
-            self.compute_new_centroids()
-            ims, ax = self.take_photo(ims, ax)
-            self.compute_sil_score()
+
+        for _ in range(n_iter):
+            # initialization
+            self.centroids = [self.choose_random_point() for _ in range(self.n_clusters)]
+            self.labels = np.array([0] * len(self.data))
+            im = ax.scatter(self.data[:,0], self.data[:,1], c='grey', animated=True)
+            for _ in range(5):
+                ims.append([im])
+            self.centroids = [self.choose_random_point() for _ in range(self.n_clusters)]
+            ims, ax = self.take_data_photo(ims, ax)
+            # learning
+            self.__stop = False
+            self.sil_scores_during_learning = []
+            self.n_iter = 0
+            while not self.__stop:
+                self.__stop = True
+                self.n_iter += 1
+                self.reassign_points_to_cluster()
+                ims, ax = self.take_data_photo(ims, ax)
+                self.compute_new_centroids()
+                ims, ax = self.take_data_photo(ims, ax)
+            for _ in range(5):
+                ims, ax = self.take_data_photo(ims, ax)
         ani = animation.ArtistAnimation(fig, ims, interval=200, blit=True, repeat_delay=1000)
-        # ani.save("movie.mp4")
-        # or
-        # writer = animation.FFMpegWriter(
-        #     fps=15, metadata=dict(artist='Me'), bitrate=1800)
-        # ani.save("movie.mp4", writer=writer)
+        writergif = animation.PillowWriter(fps=200)
+        ani.save('learning_video.gif',writer=writergif)
         plt.show()
 
-    def take_photo(self, ims, ax):
+    def take_data_photo(self, ims, ax):
         centroids = np.array(self.centroids)
         im1 = ax.scatter(self.data[:,0], self.data[:,1], c=[self.plot_colors[label] for label in self.labels], animated=True)
         im2 = ax.scatter(centroids[:,0], centroids[:,1], marker = "*", c=[self.plot_colors[label] for label in range(self.n_clusters)], s=200, edgecolors='black', animated=True)
         ims.append([im1, im2])
         return ims, ax
+    
